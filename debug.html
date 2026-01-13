@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MindAR Debug</title>
+  <style>
+    body { font-family: monospace; padding: 12px; }
+    .ok { color: #0a0; }
+    .bad { color: #a00; }
+    pre { white-space: pre-wrap; word-break: break-word; background: #f6f6f6; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h3>MindAR Debug (try2)</h3>
+  <div id="out">Running…</div>
+  <pre id="log"></pre>
+
+  <script>
+    const logEl = document.getElementById('log');
+    const outEl = document.getElementById('out');
+    function log(msg) { logEl.textContent += msg + "\n"; }
+    async function head(url) {
+      try {
+        const res = await fetch(url, { method: 'GET' });
+        return { url, ok: res.ok, status: res.status, ct: res.headers.get('content-type') };
+      } catch (e) {
+        return { url, ok: false, status: 'ERR', ct: '', err: String(e) };
+      }
+    }
+
+    (async () => {
+      const checks = [
+        "./index.html",
+        "./asset-manifest.json",
+        "./manifest.json",
+        "./static/js/main.1573730f.js",
+        "./static/css/main.43335a5b.css",
+      ];
+
+      log("Base: " + location.href);
+      log("UA: " + navigator.userAgent);
+      log("----");
+
+      for (const u of checks) {
+        const r = await head(u);
+        log(`${r.ok ? "[OK]" : "[BAD]"} ${r.status}  ${u}  ${r.ct || ""} ${r.err || ""}`);
+      }
+
+      outEl.innerHTML = "Done. If any [BAD], that asset is failing.";
+      outEl.className = "";
+    })();
+  </script>
+</body>
+</html>
